@@ -1,4 +1,4 @@
-from classes import misc
+from classes import misc, battery
 import re
 import os
 import glob
@@ -6,7 +6,8 @@ import glob
 class Configuration():
     def check(self, fatal=False):
         try:
-            misc.import_from_absolute_path('/home/arroyo/.config/awesome-battery-monitor/config.py')
+            misc.import_from_absolute_path('/home/arroyo/.config/awesome-battery-monitor/config.py', 'config_mod')
+            self.config = misc.config_mod
         except:
             if not fatal:
                 print(":: Could not import configuration file.")
@@ -50,7 +51,6 @@ class Configuration():
         # Closing file
         f.close()
             
-
         if self.check(fatal=True):
             print(":: Config file generated.")
         else:
@@ -58,4 +58,17 @@ class Configuration():
             exit(0)
 
     def getBatteries(self):
-        pass
+        batteries = []
+        for battery_name in self.config.batteries:
+            bat = battery.Battery(battery_name, self.config.battery_path)
+            batteries.append(bat)
+
+        return batteries
+
+    def getInterval(self):
+        return self.config.interval
+
+    def saveStatusLine(self, status):
+        f = open("{}profile".format(misc.config_dir()), 'a+')
+        f.write(status)
+        f.close()

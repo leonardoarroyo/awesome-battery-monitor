@@ -18,6 +18,5 @@ def import_from_absolute_path(fullpath, global_name=None):
     finally:
         del sys.path[0]
 
-
 def config_dir():
     return os.path.expanduser("~/.config/awesome-battery-monitor/")
