@@ -1,4 +1,5 @@
 from classes import misc
+import re
 import os
 import glob
 
@@ -25,21 +26,29 @@ class Configuration():
         except:
             pass
 
-        try:            
-            f = open("{}config.py".format(directory), 'w+')
-            battery_path = '/sys/class/power_supply/'
+        f = open("{}config.py".format(directory), 'w+')
+        battery_path = '/sys/class/power_supply/'
 
-            # Default settings
-            f.write("interval     = 60    # seconds\n")
-            f.write("battery_path = '{}'".format(battery_path))
+        # Default settings
+        f.write("interval     = 60    # seconds\n")
+        f.write("battery_path = '{}'\n\n".format(battery_path))
 
-            # Getting batteries
-            files = print(glob.glob("{}BAT*".format(battery_path)))
+        # Getting batteries
+        f.write("batteries = [\n".format(battery_path))
+        files = glob.glob("{}BAT*".format(battery_path))
 
-            # Closing file
-            f.close()
+        try:
+            for bat in files:
+                name = re.compile(r'(BAT\d+)').findall(bat)[0]
+                f.write("    '{}',\n".format(name))
         except:
-            pass
+            print(":: No batteries found. Exiting.")
+            exit(0)
+
+        f.write("]\n".format(battery_path))
+
+        # Closing file
+        f.close()
             
 
         if self.check(fatal=True):
